@@ -166,7 +166,7 @@ chart.add_series({
 
 # Formatting chart
 chart.set_size({"width": 720, "height": 350})
-chart.set_style(30)
+chart.set_style(8)
 chart.set_legend({"none": True})
 
 # Inserting the charts into the chart sheet
