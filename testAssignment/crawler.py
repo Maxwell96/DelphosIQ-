@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 
+from django.db.models import Sum
+
 import time
 from datetime import datetime
 
@@ -63,7 +65,6 @@ workbook = xlsxwriter.Workbook("loan_data.xlsx")
 
 # Creating worksheets
 data_sheet = workbook.add_worksheet("Data sheet")
-chart_sheet = workbook.add_worksheet("Chart sheet")
 
 title_format = workbook.add_format()
 title_format.set_bold()
@@ -79,23 +80,99 @@ for i, header in enumerate(header_list):
     data_sheet.write(0, i, str(header).upper(), title_format)
 
 # Adding entries
-for i, entry in enumerate(dates):
-    data_sheet.write(i + 1, 0, entry, entries_format)
-
-for i, entry in enumerate(titles):
-    data_sheet.write(i + 1, 1, entry, entries_format)
-
-for i, entry in enumerate(countries):
-    data_sheet.write(i + 1, 2, entry, entries_format)
-
-for i, entry in enumerate(sectors):
-    data_sheet.write(i + 1, 3, entry, entries_format)
-
-for i, entry in enumerate(amounts):
-    data_sheet.write(i + 1, 4, entry, entries_format)
+data = [dates,
+        titles,
+        countries,
+        sectors,
+        amounts]
+for j, row_data in enumerate(data):
+    for i, entry in enumerate(row_data):
+        data_sheet.write(i + 1, j, entry, entries_format)
 
 data_sheet.autofit()
 
+# Creating Chart Sheet
+chart_sheet = workbook.add_worksheet('Chartsheet')
 
+# Categorize loans and find sum
+loans_by_year = Loan.objects.values("date__year").annotate(Sum("amount"))
+loans_by_country = Loan.objects.values("country__name").annotate(Sum("amount"))
+loans_by_sector = Loan.objects.values("sector__name").annotate(Sum("amount"))
+
+# Creating dummy sheets for the charts
+dummy_sheet = workbook.add_worksheet("Dummysheet")
+start_row = 0
+for entry in loans_by_year:
+    dummy_sheet.write(start_row, 0, entry["date__year"])
+    dummy_sheet.write(start_row, 1, entry["amount__sum"])
+    start_row += 1
+
+start_row = 0
+for entry in loans_by_country:
+    dummy_sheet.write(start_row, 2, entry["country__name"])
+    dummy_sheet.write(start_row, 3, entry["amount__sum"])
+    start_row += 1
+
+start_row = 0
+for entry in loans_by_sector:
+    dummy_sheet.write(start_row, 4, entry["sector__name"])
+    dummy_sheet.write(start_row, 5, entry["amount__sum"])
+    start_row += 1
+
+# Creating a chat object
+chart = workbook.add_chart({"type": "column"})
+
+# Creating dynamic data to be used for the chart series as defined names
+chart_x_label = f'=IF(Chartsheet!$A$1="By Year",\
+            Dummysheet!$B$1:$B${len(loans_by_year) + 1},\
+            IF(Chartsheet!$A$1="By Country",\
+            Dummysheet!$D$1:$D${len(loans_by_country) + 1},\
+            Dummysheet!$F$1:$F${len(loans_by_sector) + 1}\
+        )\
+    )'
+
+chart_y_label = f'=IF(Chartsheet!$A$1="By Year",\
+            Dummysheet!$A$1:$A${len(loans_by_year) + 1},\
+            IF(Chartsheet!$A$1="By Country",\
+            Dummysheet!$C$1:$C${len(loans_by_country) + 1},\
+            Dummysheet!$E$1:$E${len(loans_by_sector) + 1}\
+        )\
+    )'
+
+# Creating named ranges for the data in each sheet
+workbook.define_name("chart_series", chart_y_label)
+workbook.define_name("chart_labels", chart_x_label)
+
+# Adding a drop-down list for selecting the data to display
+chart_sheet.data_validation("A1", {"validate": "list",
+                                   "source": ["By Year", "By Country", "By Sector"],
+                                   "input_title": "Select Data",
+                                   "input_message": "Select data to display in chart"})
+
+# Adding dropdown format
+dropdown_format = workbook.add_format(
+        {"bg_color": "black", "bold": True, "align": "center", "font_color": "white"}
+    )
+
+# Setting default value to the cell
+chart_sheet.write("A1", "By Year", dropdown_format)
+
+# Configuring the data series for the chart
+chart.add_series({
+    'values': '=Dummysheet!chart_labels',
+    'categories': '=Dummysheet!chart_series',
+    'name': 'Selected Data',
+})
+
+# Formatting chart
+chart.set_size({"width": 720, "height": 350})
+chart.set_style(30)
+chart.set_legend({"none": True})
+
+# Inserting the charts into the chart sheet
+chart_sheet.insert_chart("E3", chart)
+
+# Hiding dummy sheet
+dummy_sheet.hide()
 
 workbook.close()
