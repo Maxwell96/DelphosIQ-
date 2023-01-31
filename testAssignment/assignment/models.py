@@ -32,7 +32,7 @@ class Loan(models.Model):
     country = models.ForeignKey(Country, blank=False, on_delete=models.CASCADE)
     sector = models.ForeignKey(Sector, blank=False, on_delete=models.CASCADE)
     amount = models.IntegerField(_("Signed amount"), blank=False)
-    currency = models.ForeignKey(max_length=50, blank=False)
+    currency = models.ForeignKey(max_length=50, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
