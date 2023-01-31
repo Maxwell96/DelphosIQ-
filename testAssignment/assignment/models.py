@@ -20,13 +20,13 @@ class Sector(models.Model):
 
 
 class Currency(models.Model):
-    currency = models.CharField(blank=False, max_length=3, unique=True)
+    symbol = models.CharField(_("Currency"), max_length=3, unique=True)
 
     class Meta:
         verbose_name_plural = "Currencies"
 
     def __str__(self):
-        return self.currency
+        return self.symbol
 
 
 class Loan(models.Model):

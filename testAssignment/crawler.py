@@ -15,7 +15,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testAssignment.settings")
 django.setup()
 
-from assignment.models import Country, Sector, Loan
+from assignment.models import Country, Sector, Loan, Currency
 
 # Website URL
 url = "https://www.eib.org/en/projects/loans/index.htm"
@@ -50,9 +50,12 @@ for row in loan_table[1:-1]:
     country, _ = Country.objects.get_or_create(name=data[2])
     # Create a Sector object
     sector, _ = Sector.objects.get_or_create(name=data[3])
+    # Create a Currency object
+    currency, _ = Currency.objects.get_or_create(symbol=data[4][0])
+    # Create a Loan object
     Loan.objects.create(date=datetime.strptime(data[0], "%d %B %Y").date().strftime("%Y-%m-%d"),
                         title=data[1], country=country, sector=sector,
-                        amount=int(data[4][1:].replace(",", "")), currency=data[4][0])
+                        amount=int(data[4][1:].replace(",", "")), currency=currency)
 
     dates.append(data[0])
     titles.append(data[1])
