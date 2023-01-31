@@ -1,7 +1,5 @@
 def generate_workbook(workbook_name, sheet_data, sheet_data_headers, chart_data, chart_data_headers):
     import xlsxwriter
-    from django.db.models import Sum
-    from assignment.models import Loan
 
     # Creating workbook
     workbook = xlsxwriter.Workbook(workbook_name)
@@ -37,11 +35,6 @@ def generate_workbook(workbook_name, sheet_data, sheet_data_headers, chart_data,
     # Creating chart sheet
     chart_sheet = workbook.add_worksheet('Chartsheet')
 
-    # Categorize loans and find sum
-    loans_by_year = Loan.objects.values("date__year").annotate(Sum("amount"))
-    loans_by_country = Loan.objects.values("country__name").annotate(Sum("amount"))
-    loans_by_sector = Loan.objects.values("sector__name").annotate(Sum("amount"))
-
     # Creating dummy sheet for the charts
     dummy_sheet = workbook.add_worksheet("Dummysheet")
     col = 0
@@ -57,18 +50,18 @@ def generate_workbook(workbook_name, sheet_data, sheet_data_headers, chart_data,
 
     # Creating dynamic data to be used for the chart series as defined names
     chart_x_label = f'=IF(Chartsheet!$A$1="By Year",\
-                Dummysheet!$B$1:$B${len(loans_by_year) + 1},\
+                Dummysheet!$B$1:$B${len(chart_data[0]) + 1},\
                 IF(Chartsheet!$A$1="By Country",\
-                Dummysheet!$D$1:$D${len(loans_by_country) + 1},\
-                Dummysheet!$F$1:$F${len(loans_by_sector) + 1}\
+                Dummysheet!$D$1:$D${len(chart_data[1]) + 1},\
+                Dummysheet!$F$1:$F${len(chart_data[2]) + 1}\
             )\
         )'
 
     chart_y_label = f'=IF(Chartsheet!$A$1="By Year",\
-                Dummysheet!$A$1:$A${len(loans_by_year) + 1},\
+                Dummysheet!$A$1:$A${len(chart_data[0]) + 1},\
                 IF(Chartsheet!$A$1="By Country",\
-                Dummysheet!$C$1:$C${len(loans_by_country) + 1},\
-                Dummysheet!$E$1:$E${len(loans_by_sector) + 1}\
+                Dummysheet!$C$1:$C${len(chart_data[1]) + 1},\
+                Dummysheet!$E$1:$E${len(chart_data[2]) + 1}\
             )\
         )'
 
