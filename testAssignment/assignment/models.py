@@ -19,13 +19,20 @@ class Sector(models.Model):
         return self.name
 
 
+class Currency(models.Model):
+    currency = models.CharField(blank=False)
+
+    def __str__(self):
+        return self.currency
+
+
 class Loan(models.Model):
     date = models.DateField(_("Signature date"), auto_now_add=False, auto_now=False, blank=False)
     title = models.CharField(max_length=250)
     country = models.ForeignKey(Country, blank=False, on_delete=models.CASCADE)
     sector = models.ForeignKey(Sector, blank=False, on_delete=models.CASCADE)
     amount = models.IntegerField(_("Signed amount"), blank=False)
-    currency = models.CharField(max_length=50, blank=False)
+    currency = models.ForeignKey(max_length=50, blank=False)
 
     def __str__(self):
         return self.title
