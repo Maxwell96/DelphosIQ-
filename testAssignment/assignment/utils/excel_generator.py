@@ -30,7 +30,7 @@ def generate_workbook(workbook_name, sheet_data, sheet_data_headers, chart_data,
 
     # CREATING CHART.
     """(Wanted to extract the chart creation to a different function. Meaning I will have to access an already 
-     existing workbook but xlsx cannot be used to edit an existing Excel file). Unless I use Openpyxl which 
+     existing workbook but xlsxwriter cannot be used to edit an existing Excel file). Unless I use Openpyxl which 
      was not stated as part of the tools to use."""
     # Creating chart sheet
     chart_sheet = workbook.add_worksheet('Chartsheet')
