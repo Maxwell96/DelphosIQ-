@@ -1,12 +1,6 @@
 from rest_framework import serializers
 
-from .models import Loan, Country, Sector
-
-
-class LoanSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Loan
-        fields = "__all__"
+from .models import Loan, Country, Sector, Currency
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -18,4 +12,20 @@ class CountrySerializer(serializers.ModelSerializer):
 class SectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sector
+        fields = "__all__"
+
+
+class CurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Currency
+        fields = "__all__"
+
+
+class LoanSerializer(serializers.ModelSerializer):
+    country = CountrySerializer()
+    sector = SectorSerializer()
+    currency = CurrencySerializer()
+
+    class Meta:
+        model = Loan
         fields = "__all__"
