@@ -1,5 +1,6 @@
 # DelphosIQ-
-A project that uses a crawler to scrape data from a dynamic website. The crawler is used to populate the db/models. Has API endpoints for viewing the data. The data is also used to create an excel data sheet and chart sheet. 
+A project that uses a crawler to scrape data from a dynamic website. The data is used to populate the db/models. 
+API endpoints for viewing the data. The data is also used to create an excel data sheet and chart sheet. 
 
 ## Prerequisites
 
