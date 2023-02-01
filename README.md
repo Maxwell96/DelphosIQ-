@@ -6,8 +6,6 @@ Prerequisites
 
 Python 3.x
 Django 4.x
-Other dependencies, if any
-Installation
 
 Clone the repository: git clone https://github.com/Maxwell96/DelphosIQ-.git
 Change into the project directory: cd testAssignment
