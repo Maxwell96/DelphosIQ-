@@ -1,5 +1,5 @@
 # Django Selenium Project
-A project that uses a crawler to scrape data from a dynamic website. The data is published to necessary API endpoints and an excel workbook is generated with a data sheet and chart sheet. 
+A django rest framework powered loan data api, with website crawling and excel file generation as main features.
 
 ## Prerequisites
 
